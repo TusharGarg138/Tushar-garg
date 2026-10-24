@@ -1,6 +1,17 @@
-pandas>=2.0.0
-numpy>=1.24.0
-streamlit>=1.30.0
-pytest>=8.0.0
-PyMuPDF>=1.23.0
-matplotlib>=3.8.0
+# Aeron Systems AI Research Engineer Intern Assignment Dependencies
+
+# Core Data Processing & Analysis
+pandas>=2.0.0,<=2.2.3
+numpy>=1.24.0,<=2.2.0
+
+# Interactive Web Application
+streamlit>=1.30.0,<=1.45.0
+
+# Automated Testing Framework
+pytest>=8.0.0,<=8.4.0
+
+# PDF Report Generation (PyMuPDF / fitz)
+PyMuPDF>=1.23.0,<=1.28.0
+
+# Visualization & Diagnostics
+matplotlib>=3.8.0,<=3.11.0
