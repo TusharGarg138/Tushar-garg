@@ -38,8 +38,8 @@ def score_stations_for_technician_visit(
     metadata: Dict[str, StationMetadata]
 ) -> TechnicianRecommendation:
     """
-    Score stations based on hardware fixability, ongoing data loss,
-    and downstream climate summary importance.
+    Score stations based on hardware urgency, ongoing data loss,
+    and downstream climate summary impact.
     """
     station_flags: Dict[str, List[QualityFlag]] = {}
     all_stations = list(metadata.keys())
@@ -54,16 +54,24 @@ def score_stations_for_technician_visit(
         st_fl = station_flags.get(st_id, [])
         score = 0.0
         reasons = []
-        is_active = False
+        has_active_hw_fault = False
 
         for f in st_fl:
-            # 1. Digital hardware faults / intermittent connections
+            # Benign 'keep' flags (e.g. S04 fence albedo) do not require a technician visit
+            if f.action == "keep":
+                continue
+
+            # 1. Physical sensor hardware issues that software cannot fix
             if "hardware error" in f.issue.lower():
                 score += 40.0
                 reasons.append(f"Digital sensor communication faults ({f.channel})")
+                if "2025-04" in f.end_utc:
+                    has_active_hw_fault = True
             elif "stuck" in f.issue.lower():
                 score += 35.0
                 reasons.append(f"Sensor freeze / stuck reading ({f.channel})")
+                if "2025-04" in f.end_utc:
+                    has_active_hw_fault = True
             elif "saturation" in f.issue.lower():
                 score += 30.0
                 reasons.append(f"Sensor saturation ({f.channel})")
@@ -73,24 +81,19 @@ def score_stations_for_technician_visit(
 
             # 2. Issues that CAN be cleanly resolved by software post-processing
             if f.action == "correct":
-                # Offset/scaling is already known; reduces urgency of on-site visit
+                # Offset/scaling is already mathematically defined; lower urgency
                 score -= 10.0
                 reasons.append(f"Software-correctable ({f.issue})")
 
-            # 3. Duplicate transmission or past cleaning
-            if "duplicate" in f.issue.lower():
-                score += 5.0
-            if "flush" in f.issue.lower() or "clogged" in f.issue.lower():
-                score += 5.0
+        # Active hardware recency bonus: awarded once if an unresolved sensor fault recurs late
+        if has_active_hw_fault:
+            score += 30.0
+            reasons.append("Active recurring failure late in observation period")
 
-            # Recency / ongoing risk: events occurring late in the dataset (April)
-            if "2025-04" in f.end_utc:
-                is_active = True
-                score += 25.0
-
+        # Metadata coordinate discrepancy check
         has_coord_issue = any(f.channel == "metadata" for f in st_fl)
         if has_coord_issue:
-            score += 10.0
+            score += 15.0
             reasons.append("Station metadata coordinate discrepancy")
 
         if not st_fl:
@@ -102,10 +105,11 @@ def score_stations_for_technician_visit(
             "station_name": metadata.get(st_id, StationMetadata(station_id=st_id)).name,
             "score": round(max(0.0, score), 1),
             "flag_count": len(st_fl),
-            "is_active": is_active,
+            "is_active": has_active_hw_fault,
             "reasons": list(dict.fromkeys(reasons))
         })
 
+    # Sort descending by score, breaking ties by flag count
     rankings.sort(key=lambda x: (x["score"], x["flag_count"]), reverse=True)
 
     top = rankings[0]
@@ -120,10 +124,10 @@ def score_stations_for_technician_visit(
             "metrics (frost dates, degree days) and the sensor is actively degrading, a physical visit is urgently needed."
         )
         top_protocol = [
-            "Minute 0-15: Inspect terminal block wiring, signal cable, and ground shield on the temperature probe.",
-            "Minute 15-35: Clean the passive radiation shield and test probe response against a calibrated reference thermometer.",
-            "Minute 35-50: Replace the thermistor/1-wire temperature probe with a tested spare from the service kit.",
-            "Minute 50-60: Verify real-time logger query to confirm temperature readings track ambient air and pass noise checks."
+            "Minute 0-15 (Check First): Inspect terminal block wiring screws and ground shield on the temperature probe.",
+            "Minute 15-35: Clean passive radiation shield and test probe response against calibrated reference thermometer.",
+            "Minute 35-50: Replace thermistor/1-wire temperature probe with tested spare from field service kit.",
+            "Minute 50-60: Verify real-time logger query to confirm temperature readings track ambient air stably."
         ]
         top_outcome = (
             "Temperature sensor communication is stabilized, eliminating digital fault spikes (-40°C/85°C) and freeze "
