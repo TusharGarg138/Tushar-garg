@@ -1,0 +1,17 @@
+station_id,channel,start_utc,end_utc,issue,action,note
+S02,pressure_hpa,2025-03-21 00:00,2025-04-11 23:50,uncalibrated sensor replacement,correct,Uncalibrated pressure board swap created a +5.6 hPa step offset. Correct by applying -5.6 hPa.
+S03,temp_c,2025-03-05 14:20,2025-03-05 14:20,hardware error code spike,exclude,temp_c reported digital fault code -40.0°C (isolated sensor error spike).
+S03,temp_c,2025-03-12 03:40,2025-03-12 03:40,hardware error code spike,exclude,temp_c reported digital fault code 85.0°C (isolated sensor error spike).
+S03,temp_c,2025-03-18 06:00,2025-03-21 14:00,stuck sensor,exclude,temp_c frozen constantly at 6.5 for 80.0 hours (481 readings).
+S03,temp_c,2025-04-02 22:10,2025-04-02 22:10,hardware error code spike,exclude,temp_c reported digital fault code -40.0°C (isolated sensor error spike).
+S03,temp_c,2025-04-08 09:50,2025-04-08 09:50,hardware error code spike,exclude,temp_c reported digital fault code 85.0°C (isolated sensor error spike).
+S04,temp_c,2025-03-15 00:00,2025-04-11 23:50,post repainting microclimate / albedo,keep,Garden post repainted white; minor +0.4°C daytime mean change is within natural spring variance. Retain data.
+S04,rain_mm,2025-03-25 16:10,2025-04-02 16:00,clogged rain funnel,exclude,Rain gauge clogged with debris; missed ~31.2 mm regional precipitation prior to clearing.
+S04,rain_mm,2025-04-02 16:10,2025-04-02 16:30,artificial flush dump after gauge cleaning,exclude,Artificial 33.4 mm rain surge across 3 intervals caused by funnel flush during/after cleaning.
+S05,metadata,2025-03-01 00:00,2025-04-11 23:00,metadata coordinate error,correct,Installed metadata lat 39.5700 disagrees with GPS position 39.7540 by 20.4 km. Update station latitude to 39.7540.
+S05,rh_pct,2025-03-07 12:10,2025-03-11 00:00,sensor saturation / out of bounds,exclude,"Relative humidity exceeded 100% (451 readings, peak 105.0%). Sensor saturated/uncalibrated."
+S06,all,2025-03-24 10:10,2025-03-24 16:00,clock rollback / duplicate interval,exclude,Logger timestamp jumped backward by 5.8 hours (2025-03-24 16:00 to 2025-03-24 10:10).
+S06,all,2025-03-24 11:00,2025-04-11 17:00,clock timezone offset,correct,Logger clock set to local time (-6.0h offset vs GPS UTC). Correct by shifting timestamps by +6h.
+S07,wind_kmh,2025-03-26 00:00,2025-04-11 23:50,anemometer calibration mismatch,correct,Replacement anemometer output dropped by factor of 3.1x vs network (m/s vs km/h mismatch). Rescale by x3.6.
+S08,all,2025-03-16 14:00,2025-03-18 01:30,data gap,exclude,Transmission gap of 35.8 hours (214 missing records).
+S08,all,2025-04-05 00:00,2025-04-05 23:50,duplicate transmission block,exclude,Repeated block of 144 records identical to 2025-04-05 00:00 appended at end of file.
