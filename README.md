@@ -1,6 +1,10 @@
-Full name: [YOUR FULL NAME]
-Email: [YOUR EMAIL]
-Video: [YOUR VIDEO LINK]
+Full name: Tushar garg  
+
+Email: tushar.garg.btech2023@sitpune.edu.in
+
+Video: [[YOUR VIDEO LINK]](https://drive.google.com/drive/folders/1OFh5SyewvNsugfbCH-6IHviMS71rmiAK?usp=sharing)
+
+
 Run: python checker.py ridgeline_data_pack
 
 # Ridgeline Weather Station Network: Automated Quality Assurance Engine
